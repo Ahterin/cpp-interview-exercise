@@ -18,7 +18,7 @@ TEST(PriceCalculatorTests, RegularUserKeepsOriginalPrice) {
     EXPECT_NEAR(finalPrice, 100.0, kEpsilon);
 }
 
-TEST(PriceCalculatorTests, PremiumUserGets10PercentDiscount) {
+TEST(PriceCalculatorTests, PremiumUserGetsTenPercentDiscount) {
     FakeUserTierProvider provider;
     provider.setTier("bob", UserTier::Premium);
 
