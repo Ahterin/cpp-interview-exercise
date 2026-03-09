@@ -18,7 +18,7 @@ TEST(PriceCalculatorTests, RegularUserKeepsOriginalPrice) {
     EXPECT_NEAR(finalPrice, 100.0, kEpsilon);
 }
 
-TEST(PriceCalculatorTests, PremiumUserGetsTenPercentDiscount) {
+TEST(PriceCalculatorTests, PremiumUserGets10PercentDiscount) {
     FakeUserTierProvider provider;
     provider.setTier("bob", UserTier::Premium);
 
@@ -26,6 +26,16 @@ TEST(PriceCalculatorTests, PremiumUserGetsTenPercentDiscount) {
     const double finalPrice = calculator.calculateFinalPrice("bob", 100.0);
 
     EXPECT_NEAR(finalPrice, 90.0, kEpsilon);
+}
+
+TEST(PriceCalculatorTests, ZeroPriceForPremiumUser) {
+    FakeUserTierProvider provider;
+    provider.setTier("zero", UserTier::Premium);
+
+    const PriceCalculator calculator(provider);
+    const double finalPrice = calculator.calculateFinalPrice("zero", 0.0);
+
+    EXPECT_NEAR(finalPrice, 0.0, kEpsilon);
 }
 
 TEST(PriceCalculatorTests, UnknownUserThrows) {
