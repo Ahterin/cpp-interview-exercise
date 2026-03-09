@@ -15,7 +15,7 @@ double PriceCalculator::calculateFinalPrice(const std::string& userId, double ba
     {
         discount = 0.10;
     }
-    else if (tier == UserTier::Vip)
+    else if (tier == UserTier::VIp)
     {
         discount = 0.20;
     }
