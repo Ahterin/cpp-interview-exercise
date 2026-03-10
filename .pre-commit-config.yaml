@@ -1,0 +1,20 @@
+repos:
+  # ── clang-format: auto-formats staged C/C++ files ──────────────────────────
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v19.1.7
+    hooks:
+      - id: clang-format
+        types_or: [c++, c]
+
+  # ── clang-tidy: static analysis (requires a CMake build first) ─────────────
+  - repo: local
+    hooks:
+      - id: clang-tidy
+        name: clang-tidy
+        language: system
+        entry: >-
+          bash -c 'test -f _build/compile_commands.json ||
+          { echo "clang-tidy: run cmake -S . -B _build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && cmake --build _build first"; exit 1; };
+          find src include tests -name "*.cpp" -o -name "*.h" | xargs clang-tidy -p _build --warnings-as-errors="*"'
+        pass_filenames: false
+        types_or: [c++, c]
