@@ -2,16 +2,10 @@
 
 #include <string>
 
-enum class UserTier
-{
-    Regular,
-    Premium,
-    Vip
-};
+enum class UserTier { Regular, Premium, Vip };
 
-class IUserTierProvider
-{
-public:
+class IUserTierProvider {
+   public:
     virtual ~IUserTierProvider() = default;
-    virtual UserTier getUserTier(const std::string& userId) const = 0;
+    [[nodiscard]] virtual UserTier getUserTier(const std::string& userId) const = 0;
 };

@@ -1,30 +1,24 @@
 #pragma once
 
-#include "IUserTierProvider.h"
-
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 
-class FakeUserTierProvider : public IUserTierProvider
-{
-public:
-    void setTier(const std::string& userId, UserTier tier)
-    {
-        m_tiers[userId] = tier;
-    }
+#include "IUserTierProvider.h"
 
-    UserTier getUserTier(const std::string& userId) const override
-    {
-        const auto it = m_tiers.find(userId);
-        if (it == m_tiers.end())
-        {
+class FakeUserTierProvider : public IUserTierProvider {
+   public:
+    void setTier(const std::string& userId, UserTier tier) { m_tiers[userId] = tier; }
+
+    [[nodiscard]] UserTier getUserTier(const std::string& userId) const override {
+        const auto found = m_tiers.find(userId);
+        if (found == m_tiers.end()) {
             throw std::runtime_error("Unknown user");
         }
 
-        return it->second;
+        return found->second;
     }
 
-private:
+   private:
     std::unordered_map<std::string, UserTier> m_tiers;
 };
