@@ -1,8 +1,9 @@
+#include <gtest/gtest.h>
+
+#include <stdexcept>
+
 #include "FakeUserTierProvider.h"
 #include "PriceCalculator.h"
-
-#include <gtest/gtest.h>
-#include <stdexcept>
 
 namespace {
 constexpr double kEpsilon = 1e-9;

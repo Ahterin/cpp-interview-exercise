@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── 1. Build ─────────────────────────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            cmake \
+            ninja-build \
+            libgtest-dev \
+            pkg-config
+
+      - name: Configure (CMake)
+        run: >
+          cmake -S . -B _build
+          -G Ninja
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Build
+        run: cmake --build _build --parallel
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-artifacts
+          path: _build/
+
+  # ── 2. Test ──────────────────────────────────────────────────────────────────
+  test:
+    name: GTest
+    runs-on: ubuntu-24.04
+    needs: build
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: build-artifacts
+          path: _build/
+
+      - name: Fix artifact permissions
+        run: chmod +x _build/price_calculator_tests
+
+      - name: Run tests (CTest + GTest)
+        working-directory: _build
+        run: ctest --output-on-failure --parallel 4
+
+  # ── 3. Code-format check ─────────────────────────────────────────────────────
+  clang-format:
+    name: clang-format
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends clang-format
+
+      - name: Check formatting
+        run: |
+          find src include tests -name "*.cpp" -o -name "*.h" | \
+          xargs clang-format --dry-run --Werror
+
+  # ── 4. Static analysis ───────────────────────────────────────────────────────
+  clang-tidy:
+    name: clang-tidy
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            cmake \
+            ninja-build \
+            libgtest-dev \
+            clang-tidy
+
+      - name: Configure (CMake)
+        run: >
+          cmake -S . -B _build
+          -G Ninja
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run clang-tidy
+        run: |
+          find src include tests -name "*.cpp" -o -name "*.h" | \
+          xargs clang-tidy -p _build --warnings-as-errors='*'

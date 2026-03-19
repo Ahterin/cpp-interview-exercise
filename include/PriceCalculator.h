@@ -1,16 +1,15 @@
 #pragma once
 
-#include "IUserTierProvider.h"
-
 #include <string>
 
-class PriceCalculator
-{
-public:
+#include "IUserTierProvider.h"
+
+class PriceCalculator {
+   public:
     explicit PriceCalculator(const IUserTierProvider& userTierProvider);
 
-    double calculateFinalPrice(const std::string& userId, double basePrice) const;
+    [[nodiscard]] double calculateFinalPrice(const std::string& userId, double basePrice) const;
 
-private:
+   private:
     const IUserTierProvider& m_userTierProvider;
 };
